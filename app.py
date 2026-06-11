@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error loading models: {e}")
     
     yield
-    # Clean up if necessary
+    # Clean up if necessary but can remove it 
     models.clear()
 
 app = FastAPI(
@@ -67,7 +67,6 @@ async def route_ticket(request: TicketRequest):
         text = request.text
         
         # Category Prediction
-        # predict_proba returns [ [prob_cat1, prob_cat2, ...] ]
         category_probs = models["category"].predict_proba([text])[0]
         category_classes = models["category"].classes_
         max_prob_idx = np.argmax(category_probs)
@@ -79,7 +78,7 @@ async def route_ticket(request: TicketRequest):
         assigned_priority = models["priority"].predict([text])[0]
         
         # Fallback/Shadow Logic
-        # If confidence_score < 0.70, route to Manual Review
+        # If confidence_score < 0.70, it will rout to a human for manual review
         if confidence_score < 0.70:
             logger.info(f"Low confidence ({confidence_score:.2f}) for ticket {request.ticket_id}. Routing to Manual Review.")
             assigned_category = "Manual Review"
